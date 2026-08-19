@@ -18,6 +18,7 @@ uv.lock
 
 # Runtime-generated files
 writher.db
+vigil.db
 writher.log
 writher.log.*
 writher.ico

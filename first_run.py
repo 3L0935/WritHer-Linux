@@ -36,6 +36,30 @@ MODEL_TIERS = [
         "file":    "Qwen_Qwen3.5-0.8B-Q4_K_M.gguf",
         "vram_mb": 650,
     },
+    # ≤2.5 GB VRAM — Qwen3.5 2B, light step up from 0.8B, same family/tooling
+    {
+        "name":    "Qwen3.5-2B Q4_K_M",
+        "repo":    "bartowski/Qwen_Qwen3.5-2B-GGUF",
+        "file":    "Qwen_Qwen3.5-2B-Q4_K_M.gguf",
+        "vram_mb": 1500,
+    },
+    # ≤3 GB VRAM — LFM2.5-2.6B MoE, lightweight alternative (non-Qwen)
+    # Same Liquid AI family as the LFM2.5-8B-A1B active model. Native tool
+    # calling, agentic, ~220 tok/s in under 2.5 GB (Liquid AI claim).
+    {
+        "name":    "LFM2.5-2.6B Q4_K_M (Liquid)",
+        "repo":    "LiquidAI/LFM2.5-2.6B-GGUF",
+        "file":    "LFM2.5-2.6B-Q4_K_M.gguf",
+        "vram_mb": 2500,
+    },
+    # ≤3 GB VRAM — Ministral-3-3B, Mistral family, strong function-calling
+    # for its size (outperforms Mistral 7B on many benchmarks), 128K ctx.
+    {
+        "name":    "Ministral-3-3B Q4_K_M",
+        "repo":    "bartowski/mistralai_Ministral-3-3B-Instruct-2512-GGUF",
+        "file":    "mistralai_Ministral-3-3B-Instruct-2512-Q4_K_M.gguf",
+        "vram_mb": 2000,
+    },
     # ≥5 GB VRAM — Qwen3.5 4B, good multilingual + tool-calling
     {
         "name":    "Qwen3.5-4B Q4_K_M",
@@ -44,7 +68,7 @@ MODEL_TIERS = [
         "vram_mb": 2500,
     },
     # ≥10 GB VRAM — Qwen3.5 9B, sweet spot for assistant workloads
-    # Note: Qwen3.5 may output <think> blocks; add /no_think to system prompt to disable
+    # Note: Qwen3.5 may output thinking blocks; add /no_think to system prompt to disable
     {
         "name":    "Qwen3.5-9B Q4_K_M",
         "repo":    "bartowski/Qwen_Qwen3.5-9B-GGUF",

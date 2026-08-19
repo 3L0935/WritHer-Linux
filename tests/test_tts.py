@@ -127,11 +127,23 @@ def test_speak_noop_when_engine_off():
         mock_play.assert_not_called()
 
 
-def test_stop_calls_sounddevice():
+def test_stop_signals_playback_thread():
+    """stop() sets the stop event and clears _playing — it does NOT call
+    sounddevice.stop()/abort() (removed in the SIGSEGV fix 462632c: aborting
+    concurrently from the hotkey thread raced PortAudio/PipeWire's C backend)."""
     import tts
     with patch("sounddevice.stop") as mock_stop:
         tts.stop()
-        mock_stop.assert_called_once()
+        mock_stop.assert_not_called()
+    assert tts._stop_event.is_set()
+    assert tts._playing.is_set() is False
+
+
+def test_stop_idempotent():
+    """Calling stop() twice must not raise."""
+    import tts
+    tts.stop()
+    tts.stop()
 
 
 def test_speak_piper_dispatches(monkeypatch):

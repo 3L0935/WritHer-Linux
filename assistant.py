@@ -19,12 +19,30 @@ import folders
 import file_search
 
 def _get_backend():
-    """Create the appropriate backend based on provider setting."""
-    if config.LLM_PROVIDER == "ollama_local":
-        return LlamaServerBackend(config.OLLAMA_LOCAL_URL, config.OLLAMA_MODEL)
-    if config.LLM_PROVIDER == "ollama_cloud":
-        return LlamaServerBackend(config.OLLAMA_CLOUD_URL, config.OLLAMA_MODEL, config.OLLAMA_API_KEY)
-    return LlamaServerBackend(config.LLAMA_SERVER_URL, config.LLAMA_MODEL)
+    """Create the appropriate backend based on DB provider settings.
+
+    Reads the DB directly (like llm_manager does) so config is not the source
+    of truth for the LLM stack. Previously this read config.LLAMA_MODEL /
+    config.LLM_PROVIDER, which were constants never populated from the DB,
+    so the model name sent to llama-server was a dead placeholder.
+    """
+    import database as db
+    provider = db.get_setting("llm_provider", "llama_cpp")
+    if provider == "ollama_local":
+        return LlamaServerBackend(
+            db.get_setting("ollama_local_url", "http://localhost:11434"),
+            db.get_setting("ollama_model", ""),
+        )
+    if provider == "ollama_cloud":
+        return LlamaServerBackend(
+            db.get_setting("ollama_cloud_url", "https://ollama.com"),
+            db.get_setting("ollama_model", ""),
+            db.get_setting("ollama_api_key", ""),
+        )
+    return LlamaServerBackend(
+        db.get_setting("llama_server_url", "http://localhost:8081"),
+        db.get_setting("llama_model", ""),
+    )
 
 _backend = _get_backend()
 
@@ -663,15 +681,8 @@ def ping_llama_server() -> bool:
 
 def reload_backend():
     global _backend
-    if config.LLM_PROVIDER == "ollama_local":
-        _backend = LlamaServerBackend(config.OLLAMA_LOCAL_URL, config.OLLAMA_MODEL)
-        log.info("LLM backend reloaded (Ollama local: %s, model: %s)", config.OLLAMA_LOCAL_URL, config.OLLAMA_MODEL)
-    elif config.LLM_PROVIDER == "ollama_cloud":
-        _backend = LlamaServerBackend(config.OLLAMA_CLOUD_URL, config.OLLAMA_MODEL, config.OLLAMA_API_KEY)
-        log.info("LLM backend reloaded (Ollama cloud: %s, model: %s)", config.OLLAMA_CLOUD_URL, config.OLLAMA_MODEL)
-    else:
-        _backend = LlamaServerBackend(config.LLAMA_SERVER_URL, config.LLAMA_MODEL)
-        log.info("LLM backend reloaded (llama.cpp URL: %s)", config.LLAMA_SERVER_URL)
+    _backend = _get_backend()
+    log.info("LLM backend reloaded (%s)", type(_backend).__name__)
 
 
 def process(text: str) -> str:

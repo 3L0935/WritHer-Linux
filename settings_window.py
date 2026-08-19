@@ -350,7 +350,7 @@ class SettingsWindow:
                      font=T.FONT_TITLE, text_color=T.FG,
                      anchor="w").pack(fill="x", pady=(0, T.PAD_M))
         self._llm_ctx_size_var = tk.StringVar(
-            master=self._win, value=db.get_setting("llama_ctx_size", "4096"))
+            master=self._win, value=db.get_setting("llama_ctx_size", "8192"))
         ctk.CTkOptionMenu(
             self._llama_pack_row,
             values=["2048", "4096", "8192", "16384", "32768"],
@@ -886,7 +886,7 @@ class SettingsWindow:
         if self._llm_gpu_layers_var:
             self._llm_gpu_layers_var.set(db.get_setting("llm_gpu_layers", "99"))
         if self._llm_ctx_size_var:
-            self._llm_ctx_size_var.set(db.get_setting("llama_ctx_size", "4096"))
+            self._llm_ctx_size_var.set(db.get_setting("llama_ctx_size", "8192"))
         if self._provider_var:
             provider = db.get_setting("llm_provider", "llama_cpp")
             self._provider_var.set(provider)
@@ -1196,6 +1196,8 @@ class SettingsWindow:
                 if model != old:
                     from llm_manager import manager as _mgr
                     _mgr.shutdown()
+                    import assistant as _assistant
+                    _assistant.reload_backend()
         if self._vault_path_var:
             path = self._vault_path_var.get().strip()
             config.OBSIDIAN_VAULT_PATH = path
@@ -1239,7 +1241,7 @@ class SettingsWindow:
                 _mgr.shutdown()
         if self._llm_ctx_size_var:
             ctx = self._llm_ctx_size_var.get()
-            old_ctx = db.get_setting("llama_ctx_size", "4096")
+            old_ctx = db.get_setting("llama_ctx_size", "8192")
             db.save_setting("llama_ctx_size", ctx)
             if ctx != old_ctx:
                 from llm_manager import manager as _mgr

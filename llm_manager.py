@@ -51,9 +51,9 @@ class LlamaServerManager:
 
     def _ctx_size(self) -> int:
         try:
-            return int(db.get_setting("llama_ctx_size", "4096"))
+            return int(db.get_setting("llama_ctx_size", "8192"))
         except ValueError:
-            return 4096
+            return 8192
 
     def _server_url(self) -> str:
         if self._provider() == "ollama_local":
